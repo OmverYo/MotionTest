@@ -77,7 +77,7 @@ def basicRun():
                 break
 
             if Start and int(endTimer) - int(startTimer) >= randomCounter:
-                ps.playsound(path + "audio.mp3")
+                ps.playsound(path + "static/audio.mp3")
 
                 startTimer = time.time()
 

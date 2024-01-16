@@ -46,7 +46,7 @@ def balanceTest():
             if not initialPositionSet and time.time() - prepStartTime > 3:
                 initialKneeHipDistance = abs(leftKnee[1] - leftHip[1])
                 initialPositionSet = True
-                ps.playsound(path + "audio.mp3")
+                ps.playsound(path + "static/audio.mp3")
 
             if initialPositionSet and not balanceStarted:
                 currentKneeHipDistance = abs(leftKnee[1] - leftHip[1])

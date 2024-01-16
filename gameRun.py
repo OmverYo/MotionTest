@@ -105,13 +105,13 @@ def gameRun():
 
                     errorFull, errorTop, errorBottom = min(errorFull, 1), min(errorTop, 1), min(errorBottom, 1)
                     
-                    if errorFull < 0.05:
+                    if errorFull < 0.05: # 95 % 
                         perfect_frame += 1
-                    elif 0.05 <= errorFull < 0.15:
+                    elif 0.05 <= errorFull < 0.15: # 95% ~85%
                         awesome_frame += 1
-                    elif 0.15 <= errorFull < 0.25:
+                    elif 0.15 <= errorFull < 0.25: # 85% ~ 75%
                         good_frame += 1
-                    elif 0.25 <= errorFull < 0.35:
+                    elif 0.25 <= errorFull < 0.35: # 75% ~ 65%
                         ok_frame += 1
                     else:
                         bad_frame += 1
@@ -162,7 +162,7 @@ def gameRun():
             if is_vr:
                 results = selfie_segmentation.process(flipFrame)
                 condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.15
-                bg_image = cv2.imread(f"{path}{bg_name}")
+                bg_image = cv2.imread(f"{path}static/{bg_name}")
                 output_image = np.where(condition, flipFrame, bg_image)
                 ret, buffer = cv2.imencode('.jpg', output_image)
                 output_image = buffer.tobytes()
