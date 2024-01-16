@@ -28,7 +28,15 @@ def kneePunch():
             end = int(time.time())
 
             if end - start >= 55:
-                value = [0, 0, 0, Count, 0, 1]
+                rating = 0
+
+                if Count >= 90:
+                    rating = 1
+
+                else:
+                    rating = 0
+
+                value = [0, 0, 0, Count, 0, rating]
 
                 api.gamedata_api("/BasicData", "POST", value)
 
@@ -44,7 +52,7 @@ def kneePunch():
 
             value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
 
-            api.gamedata_api("/HandData/1", "PUT", value)
+            # api.gamedata_api("/HandData/1", "PUT", value)
 
             leftShoulder = [results[0][1], results[0][2]]
             rightShoulder = [results[1][1], results[1][2]]

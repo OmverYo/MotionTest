@@ -23,6 +23,7 @@ def gameRun():
         capture_time = 0
         perfect_frame = awesome_frame = good_frame = ok_frame = bad_frame = 0
 
+        camDelay = False
         is_vr = False
         result = api.gamedata_api("/BackgroundData", "GET", None)
         data = json.loads(result)
@@ -42,27 +43,56 @@ def gameRun():
         fbAccuracyList, tbAccuracyList, bbAccuracyList = [], [], []
         a, b, c, d, e, f = 0, 22, 0, 12, 12, 22
         fbAccuracyList, tbAccuracyList, bbAccuracyList = json_data[:b], json_data[:d], json_data[e:f]
+        
+        start = time.time()
+        
+        while True:
+            end = time.time()
+            if end - start >= 3 and camDelay is False:
+                camDelay = True
+                api.gamedata_api("/BackgroundData", "DELETE", None)
+                api.gamedata_api("/ProgramData", "POST", 1)
+            if end - start >= 5:
+                break
+            ret_val, flipFrame = user_cam.read()
+            flipFrame = cv2.flip(flipFrame, 1)
+            ret, buffer = cv2.imencode('.jpg', flipFrame)
+            flipFrame = buffer.tobytes()
+            yield (b'--image\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + flipFrame + b'\r\n')
 
-        api.gamedata_api("/BackgroundData", "DELETE", None)
-        api.gamedata_api("/ProgramData", "POST", 1)
-
-        start = round(time.time(), 1)
-
-        while b <= len(json_data):
-            ret_val, image_1 = user_cam.read()
-            
+        while user_cam.isOpened():
             try:
-                image_1 = detector.findPose(image_1)
-                lmList_user = detector.findPosition(image_1)
-                handList_user = detector.findHand(image_1)
-                topList_user = detector.findTop(image_1)
-                bottomList_user = detector.findBottom(image_1)
+                ret_val, image_1 = user_cam.read()
+                flipFrame = cv2.flip(image_1, 1)
+                flipFrame = detector.findPose(flipFrame)
+                lmList_user = detector.findPosition(flipFrame)
+                handList_user = detector.findHand(flipFrame)
+                topList_user = detector.findTop(flipFrame)
+                bottomList_user = detector.findBottom(flipFrame)
 
                 value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-                api.gamedata_api("/HandData/1", "PUT", value)
-
+                # api.gamedata_api("/HandData/1", "PUT", value)
+                
             except:
-                pass
+                ret_val, flipFrame = user_cam.read()
+
+                end = time.time()
+                if end - start >= 1:
+                    # 시간과 관련된 변수 업데이트
+                    capture_time += 1
+                    b += 22
+                    d += 10
+                    f += 12
+                    fbAccuracyList = json_data[a:b]
+                    tbAccuracyList = json_data[c:d]
+                    bbAccuracyList = json_data[e:f]
+                    a, c, e = b, d, f
+                
+                ret, buffer = cv2.imencode('.jpg', flipFrame)
+                flipFrame = buffer.tobytes()
+                yield (b'--image\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + flipFrame + b'\r\n')
 
             end = time.time()
 
@@ -79,9 +109,9 @@ def gameRun():
                         perfect_frame += 1
                     elif 0.05 <= errorFull < 0.15:
                         awesome_frame += 1
-                    elif 0.15 <= errorFull < 0.3:
+                    elif 0.15 <= errorFull < 0.25:
                         good_frame += 1
-                    elif 0.3 <= errorFull < 0.5:
+                    elif 0.25 <= errorFull < 0.35:
                         ok_frame += 1
                     else:
                         bad_frame += 1
@@ -90,53 +120,66 @@ def gameRun():
                 else:
                     # 사용자가 카메라 범위 밖에 있을 때
                     print("User is out of camera range")
-
+                
                 # 시간과 관련된 변수 업데이트
                 capture_time += 1
                 b += 22
                 d += 10
                 f += 12
 
-                try:
-                    fbAccuracyList = json_data[a:b]
-                    tbAccuracyList = json_data[c:d]
-                    bbAccuracyList = json_data[e:f]
-                    a, c, e = b, d, f
-                except IndexError:
-                    break
-
                 value = [capture_time, int((1 - errorFull) * 100) if lmList_user else 0]
+                print(value)
                 api.gamedata_api("/AccuracyData", "POST", value)
+
+                print("Ok5")
+                totalFull = sum(acc[1] for acc in totalAccuracyList) // capture_time
+                totalTop = sum(acc[2] for acc in totalAccuracyList) // capture_time
+                totalBottom = sum(acc[3] for acc in totalAccuracyList) // capture_time
+
+                print("Ok6")
+
+                recommend_content = random.randint(25, 152)
+                value = [totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
+                print(value)
+                api.gamedata_api("/PlayerData", "POST", value)
+
+                # try:
+                print("Ok3")
+                fbAccuracyList = json_data[a:b]
+                tbAccuracyList = json_data[c:d]
+                bbAccuracyList = json_data[e:f]
+                a, c, e = b, d, f
+                print("Ok4")
+
+                # user_cam.release()
+
+                # api.gamedata_api("/ProgramData", "POST", 0)
+
+                print("Ok7")
 
                 start = time.time()
 
             if is_vr:
-                results = selfie_segmentation.process(image_1)
+                results = selfie_segmentation.process(flipFrame)
                 condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.15
                 bg_image = cv2.imread(f"{path}{bg_name}")
-                output_image = np.where(condition, image_1, bg_image)
+                output_image = np.where(condition, flipFrame, bg_image)
                 ret, buffer = cv2.imencode('.jpg', output_image)
                 output_image = buffer.tobytes()
-                yield (b'--image_1\r\n'
-                    b'Content-Type: image_1/jpeg\r\n\r\n' + output_image + b'\r\n')
+                yield (b'--flipFrame\r\n'
+                    b'Content-Type: flipFrame/jpeg\r\n\r\n' + output_image + b'\r\n')
             else:
-                ret, buffer = cv2.imencode('.jpg', image_1)
-                image_1 = buffer.tobytes()
+                ret, buffer = cv2.imencode('.jpg', flipFrame)
+                flipFrame = buffer.tobytes()
                 yield (b'--image\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + image_1 + b'\r\n')
+                    b'Content-Type: image/jpeg\r\n\r\n' + flipFrame + b'\r\n')
 
         user_cam.release()
 
-        totalFull = sum(acc[1] for acc in totalAccuracyList) // capture_time
-        totalTop = sum(acc[2] for acc in totalAccuracyList) // capture_time
-        totalBottom = sum(acc[3] for acc in totalAccuracyList) // capture_time
-
-        recommend_content = random.randint(25, 152)
-        value = [totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
-        api.gamedata_api("/PlayerData", "POST", value)
-
     except Exception as e:
         print(f"An error occurred: {e}")
+        api.gamedata_api("/ProgramData", "DELETE", None)
     finally:
         if user_cam.isOpened():
+            print("Ok8")
             user_cam.release()

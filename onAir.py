@@ -36,7 +36,7 @@ def air():
 
                 value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
 
-                api.gamedata_api("/HandData/1", "PUT", value)
+                # api.gamedata_api("/HandData/1", "PUT", value)
 
                 leftAnkle = [results[0][1], results[0][2]]
                 rightAnkle = [results[1][1], results[1][2]]
@@ -71,8 +71,16 @@ def air():
 
                 elif jumpCount >= 2:
                     jumpList.sort()
+
+                    rating = 0
+
+                    if jumpList[-1] >= 0.5:
+                        rating = 1
+
+                    else:
+                        rating = 0
                     
-                    value = [0, jumpList[-1], 0, 0, 0, 1]
+                    value = [0, jumpList[-1], 0, 0, 0, rating]
 
                     api.gamedata_api("/BasicData", "POST", value)
 

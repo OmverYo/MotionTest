@@ -40,7 +40,7 @@ def basicRun():
 
                 value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
 
-                api.gamedata_api("/HandData/1", "PUT", value)
+                # api.gamedata_api("/HandData/1", "PUT", value)
 
                 leftAnkle = [results[0][1], results[0][2]]
                 rightAnkle = [results[1][1], results[1][2]]
@@ -58,7 +58,15 @@ def basicRun():
 
                 y = round(y / 3, 3)
 
-                value = [y, 0, 0, 0, 0, 1]
+                rating = 0
+
+                if y >= 0.500:
+                    rating = 0
+
+                else:
+                    rating = 1
+
+                value = [y, 0, 0, 0, 0, rating]
 
                 api.gamedata_api("/BasicData", "POST", value)
 

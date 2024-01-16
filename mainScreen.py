@@ -98,7 +98,7 @@ def mainScreen(online=True):
         if online and person_detected:
             try:
                 value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-                api.gamedata_api("/HandData/1", "PUT", value)
+                # api.gamedata_api("/HandData/1", "PUT", value)
             except Exception as e:
                 logging.error("An error occurred: %s", e)
         elif online and not person_detected:
