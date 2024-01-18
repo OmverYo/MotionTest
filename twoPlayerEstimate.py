@@ -31,8 +31,8 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
 
     result = api.gamedata_api("/BackgroundData", "GET", None)
 
-    result = result.replace("\"", "").replace("{", "").replace("}", "").replace(":", " ").replace(",", " ").split(" ")
-    coord_name = result[7]
+    data = json.loads(result)
+    coord_name = data["coord_name"]
     
     with open(f"{path}/yolov7-pose-estimation/coordinates/{coord_name}.json") as json_file:
         json_data = json.load(json_file)
@@ -72,13 +72,13 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
 
         api.gamedata_api("/ProgramData", "POST", True)
 
-        start = int(time.time())
+        start = time.time()
 
-        while(cap.isOpened): #loop until cap opened or video not complete
+        while cap.isOpened: #loop until cap opened or video not complete
 
             ret, frame = cap.read()  #get frame and success from video capture
             
-            end = int(time.time())
+            end = time.time()
 
             if end - start >= 1:
                 try:
@@ -138,8 +138,6 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
 
                         elif error_left > 0.5:
                             bad_frame_first += 1
-                        
-                        capture_time += 1
 
                         print("")
                         print("perfect_first", perfect_frame_first)
@@ -193,7 +191,7 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
 
                         totalAccuracyList.append((capture_time, int((1 - error_left) * 100), int((1 - error_right) * 100)))
 
-                        value = [totalAccuracyList[-1][0], totalAccuracyList[-1][1], totalAccuracyList[-1][1]]
+                        value = [totalAccuracyList[-1][0], totalAccuracyList[-1][1], totalAccuracyList[-1][2]]
 
                         api.gamedata_api("/TwoPlayerData", "POST", value)
 
@@ -207,7 +205,7 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
                         accuracyList.append([json_data[a], json_data[a + 1]])
                         a += 2
                     
-                    start = int(time.time())
+                    start = time.time()
                     
                 except:
                     api.gamedata_api("/ProgramData", "DELETE", None)

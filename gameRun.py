@@ -11,7 +11,6 @@ import logging
 
 def gameRun():
     try:
-        # 현재 경로 로드, 변수 선언 및 정의
         path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
 
         mp_selfie_segmentation = mp.solutions.selfie_segmentation
@@ -38,7 +37,6 @@ def gameRun():
         else:
             is_vr = False
 
-        # 정답 좌표값
         with open(f"{path}coordinates/{coord_name}.json") as json_file:
             json_data = json.load(json_file)
 
@@ -55,13 +53,12 @@ def gameRun():
                 camDelay = True
                 api.gamedata_api("/BackgroundData", "DELETE", None)
                 api.gamedata_api("/ProgramData", "POST", 1)
-            if end - start >= 5:
+            if end - start >= 6:
                 break
             
             ret_val, flipFrame = user_cam.read()
-            
             if ret_val:  # 카메라로부터 이미지 데이터가 성공적으로 읽혀진 경우
-                flipFrame = cv2.flip(flipFrame, 1) # 좌우반전(1이면 O, 0=N)
+                flipFrame = cv2.flip(flipFrame, 1)
                 try:
                     ret, buffer = cv2.imencode('.jpg', flipFrame)
                     if ret:  # 이미지 인코딩이 성공한 경우
@@ -158,24 +155,19 @@ def gameRun():
             # print(value)
             api.gamedata_api("/AccuracyData", "POST", value)
 
-            print("Ok5")
             totalFull = sum(acc[1] for acc in totalAccuracyList) // capture_time
             totalTop = sum(acc[2] for acc in totalAccuracyList) // capture_time
             totalBottom = sum(acc[3] for acc in totalAccuracyList) // capture_time
-
-            print("Ok6")
 
             recommend_content = random.randint(25, 152)
             value = [totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
             # print(value)
             api.gamedata_api("/PlayerData", "POST", value)
 
-            print("Ok3")
             fbAccuracyList = json_data[a:b]
             tbAccuracyList = json_data[c:d]
             bbAccuracyList = json_data[e:f]
             a, c, e = b, d, f
-            print("Ok4")
 
             start = time.time()
 
@@ -201,5 +193,4 @@ def gameRun():
         api.gamedata_api("/ProgramData", "DELETE", None)
     finally:
         if user_cam.isOpened():
-            print("Ok8")
             user_cam.release()

@@ -16,15 +16,27 @@ def squatJump():
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
 
-    counterResult = []
-
+    camDelay = False
     Start = 0
     Count = 0
 
-    api.gamedata_api("/ProgramData", "POST", 1)
-
     startTimer = time.time()
     endTimer = time.time()
+
+    while True:
+        endTimer = time.time()
+        if endTimer - startTimer >= 3 and camDelay is False:
+            camDelay = True
+            api.gamedata_api("/BackgroundData", "DELETE", None)
+            api.gamedata_api("/ProgramData", "POST", 1)
+        if endTimer - startTimer >= 6:
+            break
+        ret_val, frame = user_cam.read()
+        # frame = cv2.flip(frame, 1)
+        ret, buffer = cv2.imencode('.jpg', frame)
+        encodedFrame = buffer.tobytes()
+        yield (b'--image\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' + encodedFrame + b'\r\n')
 
     while user_cam.isOpened():
         success, image = user_cam.read()
@@ -38,21 +50,23 @@ def squatJump():
 
             # api.gamedata_api("/HandData/1", "PUT", value)
 
-            leftHip = [results[0][1], results[0][2]]
-            leftAnkle = [results[1][1], results[1][2]]
+            if results is not None and len(results) >= 2:
+                leftHip = [results[0][1], results[0][2]]
+                leftAnkle = [results[1][1], results[1][2]]
 
-            if distanceCalculate(leftHip, leftAnkle) < 50:
-                Start = 1
+                if Start == 0 and distanceCalculate(leftHip, leftAnkle) < 90:
+                    Start = 1
+                    print("Start Ready")
 
-            elif Start and distanceCalculate(leftHip, leftAnkle) > 100:
-                Count = Count + 1
-                Start = 0
+                elif Start and distanceCalculate(leftHip, leftAnkle) > 110:
+                    Count = Count + 1
+                    Start = 0
 
-                print("Count:", Count)
+                    print("Count:", Count)
 
             endTimer = time.time()
 
-            if int(endTimer) - int(startTimer) >= 25:
+            if endTimer - startTimer >= 29:
                 rating = 0
 
                 if Count >= 20:
@@ -73,13 +87,12 @@ def squatJump():
 
         except:
             success, image = user_cam.read()
-
-        ret_val, buffer = cv2.imencode('.jpg', image)
-
-        image = buffer.tobytes()
-
+        
+        flipFrame = cv2.flip(image, 1)
+        ret_val, buffer = cv2.imencode('.jpg', flipFrame)
+        encodedImage = buffer.tobytes()
         yield (b'--image\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n')
+            b'Content-Type: image/jpeg\r\n\r\n' + encodedImage + b'\r\n')
     
     api.gamedata_api("/ProgramData", "DELETE", None)
     

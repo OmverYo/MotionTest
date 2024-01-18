@@ -1,64 +1,47 @@
-from flask import Flask, jsonify, render_template, Response, stream_with_context
-import requests
-import mainScreen, gameRun, gameRun2, basicRun, onAir, kneePunch, balanceTest, squatJump, twoPlayerEstimate, twoPlayerCam
+from flask import Flask, render_template, Response
+import mainScreen, gameRun, basicRun, onAir, kneePunch, balanceTest, squatJump, twoPlayerEstimate, twoPlayerCam
 import api
 
 app = Flask(__name__)
 
-@app.route('/check-status', methods=['GET'])
-def check_status():
-    try:
-        response = requests.get('https://www.google.com/', timeout=3)
-        if response.status_code == 200:
-            return jsonify({'status': 'online'})
-        else:
-            return jsonify({'status': 'offline'})
-    except requests.ConnectionError:
-        return jsonify({'status': 'offline'})
-
-@app.route('/start-game', methods=['GET'])
-def start_game():
-    status_response = check_status()
-    status = status_response.get_json()['status']
-
-    if status == 'online':
-        return Response(stream_with_context(gameRun2.online_mode()),
-                        content_type='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response(stream_with_context(gameRun2.offline_mode()),
-                        content_type='multipart/x-mixed-replace; boundary=frame')
-
-
 @app.route('/gameRun')
 def game():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('gameRun.html')
 
 @app.route('/basicRun')
 def basic():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('basicRun.html')
 
 @app.route('/onAir')
 def air():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('onAir.html')
 
 @app.route('/kneePunch')
 def knee():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('kneePunch.html')
 
 @app.route('/balanceTest')
 def balance():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('balanceTest.html')
 
 @app.route('/squatJump')
 def squat():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('squatJump.html')
 
 @app.route('/mainScreen')
 def main():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     return render_template('mainScreen.html')
 
 @app.route('/twoPlayer')
 def two():
+    api.gamedata_api("/ProgramData", "DELETE", None)
     twoPlayerEstimate.twoPlayer()
 
 @app.route('/video_feed')

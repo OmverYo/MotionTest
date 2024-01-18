@@ -2,7 +2,7 @@ import requests
 import json
 
 def gamedata_api(path, method, variable):
-    API_HOST = "http://127.0.0.1:8080/api"
+    API_HOST = "http://localhost:8080/api"
 
     value = variable
 
@@ -111,18 +111,22 @@ def gamedata_api(path, method, variable):
         
         if method == "GET":
             response = requests.get(url, headers=headers)
+
             return response.text
         
         elif method == "POST":
             response = requests.post(url, headers=headers, json=body)
+
             # return True
 
         elif method == "DELETE":
             response = requests.delete(url, headers=headers)
+
             # return True
         
         elif method == "PUT":
             response = requests.put(url, headers=headers, json=body)
+
             # return True
 
     except Exception as ex:

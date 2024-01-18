@@ -26,4 +26,3 @@ seaborn>=0.11.0
 ipython  # interactive notebook
 psutil  # system utilization
 thop  # FLOPs computation
-playsound=1.2.2# audio
