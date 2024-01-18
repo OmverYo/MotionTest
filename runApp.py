@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, Response, stream_with_context
 import requests
-import mainScreen, gameRun, basicRun, onAir, kneePunch, balanceTest, squatJump, twoPlayerEstimate, twoPlayerCam
+import mainScreen, gameRun, gameRun2, basicRun, onAir, kneePunch, balanceTest, squatJump, twoPlayerEstimate, twoPlayerCam
 import api
 
 app = Flask(__name__)
@@ -22,10 +22,10 @@ def start_game():
     status = status_response.get_json()['status']
 
     if status == 'online':
-        return Response(stream_with_context(gameRun.online_mode()),
+        return Response(stream_with_context(gameRun2.online_mode()),
                         content_type='multipart/x-mixed-replace; boundary=frame')
     else:
-        return Response(stream_with_context(gameRun.offline_mode()),
+        return Response(stream_with_context(gameRun2.offline_mode()),
                         content_type='multipart/x-mixed-replace; boundary=frame')
 
 
