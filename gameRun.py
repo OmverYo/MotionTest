@@ -11,6 +11,7 @@ import logging
 
 def gameRun():
     try:
+        # 현재 경로 로드, 변수 선언 및 정의
         path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
 
         mp_selfie_segmentation = mp.solutions.selfie_segmentation
@@ -37,6 +38,7 @@ def gameRun():
         else:
             is_vr = False
 
+        # 정답 좌표값
         with open(f"{path}coordinates/{coord_name}.json") as json_file:
             json_data = json.load(json_file)
 
@@ -57,8 +59,9 @@ def gameRun():
                 break
             
             ret_val, flipFrame = user_cam.read()
+            
             if ret_val:  # 카메라로부터 이미지 데이터가 성공적으로 읽혀진 경우
-                flipFrame = cv2.flip(flipFrame, 1)
+                flipFrame = cv2.flip(flipFrame, 1) # 좌우반전(1이면 O, 0=N)
                 try:
                     ret, buffer = cv2.imencode('.jpg', flipFrame)
                     if ret:  # 이미지 인코딩이 성공한 경우
