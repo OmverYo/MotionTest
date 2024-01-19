@@ -2,7 +2,8 @@ import requests
 import json
 
 def gamedata_api(path, method, variable):
-    API_HOST = "http://localhost:8080/api"
+    # API_HOST = "http://127.0.0.1:8080/api"
+    API_HOST = "http://175.106.97.249:8080/api"
 
     value = variable
 
@@ -88,18 +89,18 @@ def gamedata_api(path, method, variable):
 
     elif path == "/TwoPlayerFinalData":
         twoPlayerFinalBody = {
-            "total_first": value[1],
-            "perfect_frame_first": value[2],
-            "awesome_frame_first": value[3],
-            "good_frame_first": value[4],
-            "ok_frame_first": value[5],
-            "bad_frame_first": value[6],
-            "total_second": value[7],
-            "perfect_frame_second": value[8],
-            "awesome_frame_second": value[9],
-            "good_frame_second": value[10],
-            "ok_frame_second": value[11],
-            "bad_frame_second": value[12]
+            "total_first": value[0],
+            "perfect_frame_first": value[1],
+            "awesome_frame_first": value[2],
+            "good_frame_first": value[3],
+            "ok_frame_first": value[4],
+            "bad_frame_first": value[5],
+            "total_second": value[6],
+            "perfect_frame_second": value[7],
+            "awesome_frame_second": value[8],
+            "good_frame_second": value[9],
+            "ok_frame_second": value[10],
+            "bad_frame_second": value[11]
         }
         body = twoPlayerFinalBody
 

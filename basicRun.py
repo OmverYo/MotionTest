@@ -36,9 +36,9 @@ def basicRun():
             api.gamedata_api("/ProgramData", "POST", 1)
         if endTimer - startTimer >= 6:
             break
-        ret_val, frame = user_cam.read()
-        # frame = cv2.flip(frame, 1)
-        ret, buffer = cv2.imencode('.jpg', frame)
+        ret_val, image = user_cam.read()
+        flipFrame = cv2.flip(image, 1)
+        ret, buffer = cv2.imencode('.jpg', flipFrame)
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -49,9 +49,9 @@ def basicRun():
         try:
             image = detector.findPose(image)
             results = detector.findAnkle(image)
-            handList_user = detector.findHand(image)
+            # handList_user = detector.findHand(image)
 
-            value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
+            # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
 
             # api.gamedata_api("/HandData/1", "PUT", value)
 
