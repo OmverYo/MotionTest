@@ -1,20 +1,10 @@
-import api
-import cProfile
+import numpy as geek
 
-def your_function_to_profile():
-    api.gamedata_api("/ProgramData", "POST", 1)
+in_arr1 = geek.array([2, -4])
+in_arr2 = geek.array([0, -7])
 
-# Create a cProfile object
-profiler = cProfile.Profile()
+print ("1st Input array : ", in_arr1)
+print ("2nd Input array : ", in_arr2)
 
-# Start profiling
-profiler.enable()
-
-# Call the function you want to profile
-your_function_to_profile()
-
-# Stop profiling
-profiler.disable()
-
-# Print the profiling results
-profiler.print_stats()
+out_arr = geek.subtract(in_arr1, in_arr2)
+print ("Output array: ", out_arr)

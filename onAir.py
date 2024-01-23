@@ -49,10 +49,9 @@ def air():
         try:
             image = detector.findPose(image)
             results = detector.findAnkle(image)
+            
             # handList_user = detector.findHand(image)
-
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-
             # api.gamedata_api("/HandData/1", "PUT", value)
 
             if results is not None and len(results) >= 2:
@@ -60,7 +59,7 @@ def air():
                 rightAnkle = [results[1][1], results[1][2]]
 
                 # 초기 위치 설정
-                if not anklePositionSet and time.time() - startTimer > 3:
+                if not anklePositionSet and time.time() - startTimer > 6:
                     ankleInitialPosition = (leftAnkle, rightAnkle)
                     anklePositionSet = True
 
