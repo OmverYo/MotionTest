@@ -73,6 +73,7 @@ def kneePunch():
 
                 endTimer = time.time()
 
+                # 60초 동안 실행
                 if endTimer - startTimer >= 59:
                     # rating = 0
 
@@ -92,21 +93,22 @@ def kneePunch():
                     api.gamedata_api("/ProgramData", "DELETE", None)
 
                     break
-
+                
+                # 왼손과 왼어깨의 거리가 가깝고 오른무릎이 45도 이상일때
                 if distanceCalculate(leftShoulder, leftWrist) < 65 and angleCalculate(rightKnee, rightHip):
                     leftStart = 1
                     ps.playsound(path + "coin.mp3")
-
+                # 왼손과 왼어깨의 거리가 멀고 오른쪽 무릎이 45도 미만일때
                 elif leftStart and distanceCalculate(leftShoulder, leftWrist) > 75 and not angleCalculate(rightKnee, rightHip):
                     Count = Count + 1
                     leftStart = 0
 
                     print("Count:", Count)
-
+                # 오른손과 오른어깨의 거리가 가깝고 왼무릎이 45도 이상일때
                 if distanceCalculate(rightShoulder, rightWrist) < 65 and angleCalculate(leftKnee, leftHip):
                     rightStart = 1
                     ps.playsound(path + "coin.mp3")
-
+                # 오른손과 오른어깨의 거리가 멀고 왼무릎이 45도 미만일때
                 elif rightStart and distanceCalculate(rightShoulder, rightWrist) > 75 and not angleCalculate(leftKnee, leftHip):
                     Count = Count + 1
                     rightStart = 0

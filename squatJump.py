@@ -53,10 +53,12 @@ def squatJump():
                 leftHip = [results[0][1], results[0][2]]
                 leftAnkle = [results[1][1], results[1][2]]
 
+                # 무릎을 충분히 굽힌 상태 감지
                 if Start == 0 and distanceCalculate(leftHip, leftAnkle) < 90:
                     Start = 1
                     print("Start Ready")
 
+                # 점프 감지
                 elif Start and distanceCalculate(leftHip, leftAnkle) > 110:
                     Count = Count + 1
                     Start = 0
@@ -65,6 +67,7 @@ def squatJump():
 
             endTimer = time.time()
 
+            # 30초 간 실행
             if endTimer - startTimer >= 29:
                 # rating = 0
 

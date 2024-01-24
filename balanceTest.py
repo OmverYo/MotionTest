@@ -65,16 +65,19 @@ def balanceTest():
 
                 endTimer = time.time()
 
+                # 초기 위치 설정
                 if not initialPositionSet and time.time() - prepStartTime >= 6:
                     initialleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
                     initialrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
 
                     initialPositionSet = True
 
+                # 현재 허리와 무릎 사이의 간격 인식
                 if initialPositionSet and not balanceStarted:
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
                     currentrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
 
+                    # 왼쪽 무릎을 들었을 경우 시작
                     if currentleftKneeHipDistance < initialleftKneeHipDistance - 10:
                         initialleftkneePosition = leftKnee[0]
                         initialrightkneePosition = rightKnee[0]
@@ -83,7 +86,7 @@ def balanceTest():
                         balanceStartTime = time.time()
                         leftbalanceStarted = True
                         balanceStarted = True
-
+                    # 오른쪽 무릎을 들었을 경우 시작
                     elif currentrightKneeHipDistance < initialrightKneeHipDistance - 10:
                         initialleftkneePosition = leftKnee[0]
                         initialrightkneePosition = rightKnee[0]
@@ -93,8 +96,10 @@ def balanceTest():
                         rightbalanceStarted = True
                         balanceStarted = True
 
+                # 왼 무릎으로 시작할 경우
                 if leftbalanceStarted:
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
+                    # 60초가 지나거나, 무릎을 놓치거나, 어깨가 흔들리거나, 무릎이 흔들릴 경우 종료
                     if currentleftKneeHipDistance > initialleftKneeHipDistance - 3 or differenceCalculate(initialleftshoulderPosition, leftShoulder[0]) or differenceCalculate(initialrightshoulderPosition, rightShoulder[0]) or differenceCalculate(initialleftkneePosition, leftKnee[0]) or endTimer - startTimer >= 60:
                         ps.playsound(path + "jump.mp3")
 
@@ -119,6 +124,7 @@ def balanceTest():
 
                 elif rightbalanceStarted:
                     currentrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
+                    # 60초가 지나거나, 무릎을 놓치거나, 어깨가 흔들리거나, 무릎이 흔들릴 경우 종료
                     if currentrightKneeHipDistance > initialrightKneeHipDistance - 3 or differenceCalculate(initialleftshoulderPosition, leftShoulder[0]) or differenceCalculate(initialrightshoulderPosition, rightShoulder[0]) or differenceCalculate(initialrightkneePosition, rightKnee[0]) or endTimer - startTimer >= 60:
                         ps.playsound(path + "jump.mp3")
 

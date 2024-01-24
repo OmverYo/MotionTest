@@ -4,11 +4,6 @@ import api
 import playsound as ps
 import pathlib
 
-def distanceCalculate(p1, p2):
-    """Calculate Euclidean distance between two points."""
-    dis = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-    return dis
-
 def air():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
     user_cam = cv2.VideoCapture(0)
@@ -68,12 +63,12 @@ def air():
                     currentleftAnkleHeight = leftAnkle[1]
                     currentrightAnkleHeight = rightAnkle[1]
 
-                    # 점프 시작 감지
+                    # 두 발 모두 점프 하였을 경우 시작 감지
                     if not jumpStarted and currentleftAnkleHeight < leftankleInitialPosition - JUMP_START_THRESHOLD and currentrightAnkleHeight < rightankleInitialPosition - JUMP_START_THRESHOLD:
                         jumpStarted = True
                         jumpStartTimer = time.time()
 
-                    # 점프 종료 감지
+                    # 한 발이라도 먼저 떨어진 경우 점프 종료 감지
                     elif jumpStarted and (currentrightAnkleHeight > rightankleInitialPosition - JUMP_END_THRESHOLD or currentrightAnkleHeight > rightankleInitialPosition - JUMP_START_THRESHOLD):
                         jumpEndTimer = time.time()
                         airTime = round((jumpEndTimer - jumpStartTimer), 3)
@@ -84,6 +79,7 @@ def air():
 
                         jumpCount += 1
 
+                    # 2번 실행 후 종료
                     elif jumpCount >= 2:
                         jumpList.sort()
 

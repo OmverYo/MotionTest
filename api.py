@@ -2,11 +2,14 @@ import requests
 import json
 
 def gamedata_api(path, method, variable):
+    # 로컬 테스트 용 주소와 실제 클라우드 주소
     # API_HOST = "http://127.0.0.1:8080/api"
     API_HOST = "http://175.106.97.249:8080/api"
 
+    # POST와 PUT 전용 전달될 자료
     value = variable
 
+    # 데이터 베이스에 있는 테이블과 컬럼 이름
     body = None
 
     headers = {
@@ -104,12 +107,14 @@ def gamedata_api(path, method, variable):
         }
         body = twoPlayerFinalBody
 
+    # 주소와 해당 API의 이름
     url = API_HOST + path
 
     try:
         global response
         response = None
         
+        # GET POST DELETE PUT Method를 지정해줍니다
         if method == "GET":
             response = requests.get(url, headers=headers)
 
