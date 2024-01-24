@@ -100,7 +100,7 @@ class poseDetector():
         self.kneeList = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
-                if id in [11, 12, 15, 16, 25, 26]:
+                if id in [11, 12, 15, 16, 23, 24, 25, 26]:
                     h, w, c = img.shape
                     cx, cy = int(lm.x * w), int(lm.y * h)
                     self.kneeList.append([id, cx, cy])
@@ -112,7 +112,7 @@ class poseDetector():
         self.kneeHipList = []
         if self.results.pose_landmarks:
             for id, lm in enumerate(self.results.pose_landmarks.landmark):
-                if id in [23, 25]:
+                if id in [11, 12, 23, 24, 25, 26]:
                     h, w, c = img.shape
                     cx, cy = int(lm.x * w), int(lm.y * h)
                     self.kneeHipList.append([cx, cy])

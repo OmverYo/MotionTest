@@ -59,21 +59,21 @@ def balanceTest():
 
                 if not initialPositionSet and time.time() - prepStartTime >= 6:
                     initialleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
-                    initialrightKneeHipDistance = abs(rightHip[1] - rightKnee[1])
+                    initialrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
                     initialleftshoulderPosition = leftShoulder
                     initialrightshoulderPosition = rightShoulder
                     initialPositionSet = True
 
                 if initialPositionSet and not balanceStarted:
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
-                    currentrightKneeHipDistance = abs(rightHip[1] - rightKnee[1])
+                    currentrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
                     if currentleftKneeHipDistance < initialleftKneeHipDistance - 10 or currentrightKneeHipDistance < initialrightKneeHipDistance - 10:
                         balanceStartTime = time.time()
                         balanceStarted = True
 
                 if balanceStarted:
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
-                    currentrightKneeHipDistance = abs(rightHip[1] - rightKnee[1])
+                    currentrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
                     if currentleftKneeHipDistance > initialleftKneeHipDistance - 3 or currentrightKneeHipDistance > initialrightKneeHipDistance - 3 or  endTimer - startTimer >= 60:
                         ps.playsound(path + "jump.mp3")
 

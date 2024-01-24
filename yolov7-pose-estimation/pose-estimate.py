@@ -40,6 +40,9 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
         while(cap.isOpened): #loop until cap opened or video not complete
 
             ret, frame = cap.read()  #get frame and success from video capture
+            success, realCam = ret, frame
+
+            cv2.imshow("YOLOv7", realCam)
 
             end = int(time.time())
 

@@ -23,6 +23,7 @@ def gamedata_api(path, method, variable):
 
     elif path == "/BasicData":
         basicBody = {
+            "play_id": 1,
             "reaction_time": value[0],
             "on_air": value[1],
             "squat_jump": value[2],
@@ -39,7 +40,6 @@ def gamedata_api(path, method, variable):
             "lx": value[2],
             "ly": value[3]
         }
-
         body = handBody
 
     elif path == "/HandData/1":

@@ -34,7 +34,7 @@ def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
     data = json.loads(result)
     coord_name = data["coord_name"]
     
-    with open(f"{path}/yolov7-pose-estimation/coordinates/{coord_name}.json") as json_file:
+    with open(f"{path}yolov7-pose-estimation/coordinates/{coord_name}.json") as json_file:
         json_data = json.load(json_file)
 
     accuracyList = []

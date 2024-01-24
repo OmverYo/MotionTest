@@ -10,6 +10,18 @@ def distanceCalculate(p1, p2):
     
     return dis
 
+# 무릎부터 허리까지 거리 계산
+# 백터 길이 계산법으로 X와 Y가 같을 경우 45도 기준
+def angleCalculate(p1, p2):
+    # 무릎부터 허리까지의 Y길이가 X보다 짧으면 45도 이상
+    if (p2[1] - p1[1]) < (p2[0] - p1[0]):
+        angle = True
+    # 무릎부터 허리까지의 Y길이가 X보다 짧으면 45도 미만
+    elif (p2[1] - p1[1]) > (p2[0] - p1[0]):
+        angle = False
+
+    return angle
+
 def kneePunch():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
     user_cam = cv2.VideoCapture(0)
@@ -44,10 +56,9 @@ def kneePunch():
         try:
             image = detector.findPose(image)
             results = detector.findKnee(image)
+            
             # handList_user = detector.findHand(image)
-
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-
             # api.gamedata_api("/HandData/1", "PUT", value)
 
             if results is not None and len(results) >= 6:
@@ -55,23 +66,26 @@ def kneePunch():
                 rightShoulder = [results[1][1], results[1][2]]
                 leftWrist = [results[2][1], results[2][2]]
                 rightWrist = [results[3][1], results[3][2]]
-                leftKnee = [results[4][1], results[4][2]]
-                rightKnee = [results[5][1], results[5][2]]
+                leftHip = [results[4][1], results[4][2]]
+                rightHip = [results[5][1], results[5][2]]
+                leftKnee = [results[6][1], results[6][2]]
+                rightKnee = [results[7][1], results[7][2]]
 
                 endTimer = time.time()
 
                 if endTimer - startTimer >= 59:
-                    rating = 0
+                    # rating = 0
 
-                    if Count >= 90:
-                        rating = 1
+                    # if Count >= 90:
+                    #     rating = 1
 
-                    else:
-                        rating = 0
+                    # else:
+                    #     rating = 0
 
-                    value = [0, 0, 0, Count, 0, rating]
-
+                    value = [0, 0, 0, Count, 0, 0]
+                    
                     api.gamedata_api("/BasicData", "POST", value)
+                    api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
 
                     user_cam.release()
 
@@ -79,19 +93,21 @@ def kneePunch():
 
                     break
 
-                if distanceCalculate(leftShoulder, leftWrist) < 65 and distanceCalculate(rightShoulder, rightKnee) > 145:
+                if distanceCalculate(leftShoulder, leftWrist) < 65 and angleCalculate(rightKnee, rightHip):
                     leftStart = 1
+                    ps.playsound(path + "coin.mp3")
 
-                elif leftStart and distanceCalculate(leftShoulder, leftWrist) > 75 and distanceCalculate(rightShoulder, rightKnee) < 137:
+                elif leftStart and distanceCalculate(leftShoulder, leftWrist) > 75 and not angleCalculate(rightKnee, rightHip):
                     Count = Count + 1
                     leftStart = 0
 
                     print("Count:", Count)
 
-                if distanceCalculate(rightShoulder, rightWrist) < 65 and distanceCalculate(leftShoulder, leftKnee) > 145:
+                if distanceCalculate(rightShoulder, rightWrist) < 65 and angleCalculate(leftKnee, leftHip):
                     rightStart = 1
+                    ps.playsound(path + "coin.mp3")
 
-                elif rightStart and distanceCalculate(rightShoulder, rightWrist) > 75 and distanceCalculate(leftShoulder, leftKnee) < 137:
+                elif rightStart and distanceCalculate(rightShoulder, rightWrist) > 75 and not angleCalculate(leftKnee, leftHip):
                     Count = Count + 1
                     rightStart = 0
 

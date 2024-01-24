@@ -67,26 +67,23 @@ def basicRun():
 
                     y = round(y / 3, 3)
 
-                    rating = 0
+                    # rating = 0
 
-                    if y >= 0.500:
-                        rating = 0
+                    # if y >= 0.500:
+                    #     rating = 0
 
-                    else:
-                        rating = 1
+                    # else:
+                    #     rating = 1
 
-                    value = [y, 0, 0, 0, 0, rating]
+                    value = [y, 0, 0, 0, 0, 0]
 
                     api.gamedata_api("/BasicData", "POST", value)
-
-                    user_cam.release()
-
-                    api.gamedata_api("/ProgramData", "POST", 0)
+                    api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
 
                     break
 
                 if Start and endTimer - startTimer >= randomCounter:
-                    ps.playsound(path + "audio.mp3")
+                    ps.playsound(path + "start.mp3")
 
                     startTimer = time.time()
 
@@ -121,6 +118,25 @@ def basicRun():
         encodedImage = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + encodedImage + b'\r\n')
+    
+    startTimer = time.time()
+
+    while True:
+        endTimer = time.time()
+
+        if endTimer - startTimer >= 3:
+            api.gamedata_api("/ProgramData", "POST", 0)
+
+            user_cam.release()
+            
+            break
+        
+        ret_val, image = user_cam.read()
+        flipFrame = cv2.flip(image, 1)
+        ret, buffer = cv2.imencode('.jpg', flipFrame)
+        frame = buffer.tobytes()
+        yield (b'--image\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
     api.gamedata_api("/ProgramData", "DELETE", None)
 

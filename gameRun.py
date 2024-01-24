@@ -30,6 +30,18 @@ def gameRun():
     bg_name = data["bg_name"]
     coord_name = data["coord_name"]
 
+    if coord_name.startswith("TK_Poomsae"):
+        recommend_content = random.randint(25, 39)
+
+    elif coord_name.startswith("TK_Motion"):
+        recommend_content = random.randint(40, 144)
+
+    elif coord_name.startswith("full)") or coord_name.startswith("15_Koyote"):
+        recommend_content = random.randint(145, 149)
+
+    elif coord_name.startswith("BX_Motion"):
+        recommend_content = random.randint(155, 187)
+
     if myVR == 1:
         is_vr = True
     else:
@@ -81,10 +93,10 @@ def gameRun():
         try:
             detectedImage = detector.findPose(image)
             lmList_user = detector.findPosition(detectedImage)
-            # handList_user = detector.findHand(detectedImage)
             topList_user = detector.findTop(detectedImage)
             bottomList_user = detector.findBottom(detectedImage)
-
+            
+            # handList_user = detector.findHand(detectedImage)
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
             # api.gamedata_api("/HandData/1", "PUT", value)
                 
@@ -132,7 +144,6 @@ def gameRun():
             totalTop = sum(acc[2] for acc in totalAccuracyList) // capture_time
             totalBottom = sum(acc[3] for acc in totalAccuracyList) // capture_time
 
-            recommend_content = random.randint(25, 152)
             value = [totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
             api.gamedata_api("/PlayerData", "POST", value)
 

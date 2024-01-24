@@ -1,10 +1,10 @@
-import numpy as geek
+import pathlib
+import json
 
-in_arr1 = geek.array([2, -4])
-in_arr2 = geek.array([0, -7])
+path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+nickname = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
 
-print ("1st Input array : ", in_arr1)
-print ("2nd Input array : ", in_arr2)
+with open(nickname) as json_file:
+    json_data = json.load(json_file)
 
-out_arr = geek.subtract(in_arr1, in_arr2)
-print ("Output array: ", out_arr)
+print(json_data["name"])

@@ -44,10 +44,9 @@ def squatJump():
         try:
             image = detector.findPose(image)
             results = detector.findHip(image)
+            
             # handList_user = detector.findHand(image)
-
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-
             # api.gamedata_api("/HandData/1", "PUT", value)
 
             if results is not None and len(results) >= 2:
@@ -61,23 +60,24 @@ def squatJump():
                 elif Start and distanceCalculate(leftHip, leftAnkle) > 110:
                     Count = Count + 1
                     Start = 0
-
+                    ps.playsound(path + "coin.mp3")
                     print("Count:", Count)
 
             endTimer = time.time()
 
             if endTimer - startTimer >= 29:
-                rating = 0
+                # rating = 0
 
-                if Count >= 20:
-                    rating = 1
+                # if Count >= 20:
+                #     rating = 1
 
-                else:
-                    rating = 0
+                # else:
+                #     rating = 0
 
-                value = [0, 0, Count, 0, 0, rating]
+                value = [0, 0, Count, 0, 0, 0]
 
                 api.gamedata_api("/BasicData", "POST", value)
+                api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
 
                 user_cam.release()
 
