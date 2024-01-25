@@ -1,8 +1,9 @@
 from flask import Flask, render_template, Response
-import mainScreen, gameRun, basicRun, onAir, kneePunch, balanceTest, squatJump, twoPlayerEstimate
+import mainScreen, gameRun, twoPlayerEstimate
 import api
 import pathlib
 import json
+from basic_physical import basicRun, onAir, kneePunch, balanceTest, squatJump
 
 # Flask를 불러와 기능을 app으로 지정
 app = Flask(__name__)

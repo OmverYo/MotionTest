@@ -117,7 +117,7 @@ def gameRun():
             # handList_user = detector.findHand(detectedImage)
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
             # api.gamedata_api("/HandData/1", "PUT", value)
-                
+
         except:
             pass
 
