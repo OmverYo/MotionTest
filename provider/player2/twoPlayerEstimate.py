@@ -21,7 +21,7 @@ from utils.plots import output_to_keypoint
 @torch.no_grad()
 def run(poseweights = "yolov7-w6-pose.pt", source = "0", device = 'cpu'):
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
-    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
 
     with open(nickname_path) as nickname_file:
         nickname_data = json.load(nickname_file)

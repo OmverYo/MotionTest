@@ -14,7 +14,7 @@ def differenceCalculate(p1, p2):
 
 def balanceTest():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
-    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
 
     with open(nickname_path) as nickname_file:
         nickname_data = json.load(nickname_file)
