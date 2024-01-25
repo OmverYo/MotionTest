@@ -3,9 +3,22 @@ import poseModule as pm
 import api
 import playsound as ps
 import pathlib
+import json
+
+def distanceCalculate(p1, p2):
+    """Calculate Euclidean distance between two points."""
+    dis = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+    return dis
 
 def air():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
+
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
 
@@ -27,8 +40,9 @@ def air():
         if endTimer - startTimer >= 3 and camDelay is False:
             camDelay = True
             api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if endTimer - startTimer >= 6:
+            startTimer = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -91,10 +105,10 @@ def air():
                         # else:
                         #     rating = 0
                         
-                        value = [0, jumpList[-1], 0, 0, 0, 0]
+                        value = [nickname, 0, jumpList[-1], 0, 0, 0, 0]
 
                         api.gamedata_api("/BasicData", "POST", value)
-                        api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                        api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                         break
 
@@ -114,9 +128,9 @@ def air():
         endTimer = time.time()
 
         if endTimer - startTimer >= 3:
-            api.gamedata_api("/ProgramData", "POST", 0)
-
             user_cam.release()
+
+            api.gamedata_api("/ProgramData", "POST", [nickname, 0])
             
             break
         
@@ -126,7 +140,3 @@ def air():
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    
-    api.gamedata_api("/ProgramData", "DELETE", None)
-
-    user_cam.release()

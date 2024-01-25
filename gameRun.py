@@ -11,6 +11,12 @@ import random
 def gameRun():
     # 현재 파일의 위치
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
 
     # VR 배경 제거를 위한 Mediapipe의 Segmentation 함수
     mp_selfie_segmentation = mp.solutions.selfie_segmentation
@@ -28,7 +34,7 @@ def gameRun():
     # 카메라 대기 변수, VR 유무, VR 배경 이름, 좌표 값 이름 
     camDelay = False
     is_vr = False
-    result = api.gamedata_api("/BackgroundData", "GET", None)
+    result = api.gamedata_api(f"/BackgroundData?nickname={nickname}", "GET", None)
     data = json.loads(result)
 
     myVR = data["is_vr"]
@@ -71,9 +77,9 @@ def gameRun():
         end = time.time()
         if end - start >= 3 and camDelay is False:
             camDelay = True
-            api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if end - start >= 6:
+            start = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -136,7 +142,7 @@ def gameRun():
                     ok_frame += 1
                 else:
                     bad_frame += 1
-
+                
                 # 해당 정확도를 리스트 변수에 저장
                 totalAccuracyList.append((capture_time, int((1 - errorFull) * 100), int((1 - errorTop) * 100), int((1 - errorBottom) * 100)))
             
@@ -152,7 +158,7 @@ def gameRun():
             f += 12
 
             # 1초 마다 업데이트 될 정확도 서버로 전송
-            value = [capture_time, int((1 - errorFull) * 100) if lmList_user else 0]
+            value = [nickname, capture_time, int((1 - errorFull) * 100) if lmList_user else 0]
             api.gamedata_api("/AccuracyData", "POST", value)
 
             # 전신, 상체, 하체의 정확도 개수를 저장
@@ -160,16 +166,22 @@ def gameRun():
             totalTop = sum(acc[2] for acc in totalAccuracyList) // capture_time
             totalBottom = sum(acc[3] for acc in totalAccuracyList) // capture_time
 
-            value = [totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
+            value = [nickname, totalFull, totalTop, totalBottom, perfect_frame, awesome_frame, good_frame, ok_frame, bad_frame, recommend_content]
             api.gamedata_api("/PlayerData", "POST", value)
 
-            fbAccuracyList = json_data[a:b]
-            tbAccuracyList = json_data[c:d]
-            bbAccuracyList = json_data[e:f]
-            a, c, e = b, d, f
+            try:
+                fbAccuracyList = json_data[a:b]
+                tbAccuracyList = json_data[c:d]
+                bbAccuracyList = json_data[e:f]
+                a, c, e = b, d, f
+            
+            except:
+                api.gamedata_api("/ProgramData", "POST", [nickname, 0])
+
+                break
 
             start = time.time()
-        
+
         # 해당 게임이 AR 중 VR을 선택된 카메라로 HTML로 렌더링
         try:
             if is_vr:
@@ -190,6 +202,6 @@ def gameRun():
             
         except:
             pass
-    
+
     # 이 함수의 카메라를 종료
     user_cam.release()

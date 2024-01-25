@@ -3,6 +3,7 @@ import poseModule as pm
 import api
 import playsound as ps
 import pathlib
+import json
 
 def distanceCalculate(p1, p2):
     """p1 and p2 in format (x1, y1) and (x2, y2) tuples"""
@@ -24,6 +25,13 @@ def angleCalculate(p1, p2):
 
 def kneePunch():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
+
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
 
@@ -40,8 +48,9 @@ def kneePunch():
         if endTimer - startTimer >= 3 and camDelay is False:
             camDelay = True
             api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if endTimer - startTimer >= 6:
+            startTimer = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -83,31 +92,34 @@ def kneePunch():
                     # else:
                     #     rating = 0
 
-                    value = [0, 0, 0, Count, 0, 0]
+                    value = [nickname, 0, 0, 0, Count, 0, 0]
                     
                     api.gamedata_api("/BasicData", "POST", value)
-                    api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                    api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                     user_cam.release()
 
-                    api.gamedata_api("/ProgramData", "DELETE", None)
+                    api.gamedata_api("/ProgramData", "POST", [nickname, 0])
 
                     break
-                
+
                 # 왼손과 왼어깨의 거리가 가깝고 오른무릎이 45도 이상일때
                 if distanceCalculate(leftShoulder, leftWrist) < 65 and angleCalculate(rightKnee, rightHip):
                     leftStart = 1
                     ps.playsound(path + "coin.mp3")
+
                 # 왼손과 왼어깨의 거리가 멀고 오른쪽 무릎이 45도 미만일때
                 elif leftStart and distanceCalculate(leftShoulder, leftWrist) > 75 and not angleCalculate(rightKnee, rightHip):
                     Count = Count + 1
                     leftStart = 0
 
                     print("Count:", Count)
+
                 # 오른손과 오른어깨의 거리가 가깝고 왼무릎이 45도 이상일때
                 if distanceCalculate(rightShoulder, rightWrist) < 65 and angleCalculate(leftKnee, leftHip):
                     rightStart = 1
                     ps.playsound(path + "coin.mp3")
+
                 # 오른손과 오른어깨의 거리가 멀고 왼무릎이 45도 미만일때
                 elif rightStart and distanceCalculate(rightShoulder, rightWrist) > 75 and not angleCalculate(leftKnee, leftHip):
                     Count = Count + 1
@@ -123,7 +135,3 @@ def kneePunch():
         encodedImage = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + encodedImage + b'\r\n')
-
-    api.gamedata_api("/ProgramData", "DELETE", None)
-
-    user_cam.release()

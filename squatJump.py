@@ -3,6 +3,7 @@ import poseModule as pm
 import api
 import playsound as ps
 import pathlib
+import json
 
 def distanceCalculate(p1, p2):
     """p1 and p2 in format (x1, y1) and (x2, y2) tuples"""
@@ -12,6 +13,12 @@ def distanceCalculate(p1, p2):
 
 def squatJump():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
 
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
@@ -28,8 +35,9 @@ def squatJump():
         if endTimer - startTimer >= 3 and camDelay is False:
             camDelay = True
             api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if endTimer - startTimer >= 6:
+            startTimer = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -77,14 +85,14 @@ def squatJump():
                 # else:
                 #     rating = 0
 
-                value = [0, 0, Count, 0, 0, 0]
+                value = [nickname, 0, 0, Count, 0, 0, 0]
 
                 api.gamedata_api("/BasicData", "POST", value)
-                api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                 user_cam.release()
 
-                api.gamedata_api("/ProgramData", "DELETE", None)
+                api.gamedata_api("/ProgramData", "POST", [nickname, 0])
 
                 break
 
@@ -96,7 +104,3 @@ def squatJump():
         encodedImage = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + encodedImage + b'\r\n')
-    
-    api.gamedata_api("/ProgramData", "DELETE", None)
-    
-    user_cam.release()

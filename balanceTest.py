@@ -3,6 +3,7 @@ import poseModule as pm
 import api
 import playsound as ps
 import pathlib
+import json
 
 def differenceCalculate(p1, p2):
     if abs(p1 - p2) > 20:
@@ -13,7 +14,13 @@ def differenceCalculate(p1, p2):
 
 def balanceTest():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
-    
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
+
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
 
@@ -34,8 +41,9 @@ def balanceTest():
         if endTimer - startTimer >= 3 and camDelay is False:
             camDelay = True
             api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if endTimer - startTimer >= 6:
+            startTimer = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -95,7 +103,6 @@ def balanceTest():
                         balanceStartTime = time.time()
                         rightbalanceStarted = True
                         balanceStarted = True
-
                 # 왼 무릎으로 시작할 경우
                 if leftbalanceStarted:
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
@@ -115,10 +122,10 @@ def balanceTest():
 
                         print("Balance Time:", balanceTime, "seconds")
 
-                        value = [0, 0, 0, 0, balanceTime, 0]
+                        value = [nickname, 0, 0, 0, 0, balanceTime, 0]
 
                         api.gamedata_api("/BasicData", "POST", value)
-                        api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                        api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                         break
 
@@ -140,10 +147,10 @@ def balanceTest():
 
                         print("Balance Time:", balanceTime, "seconds")
 
-                        value = [0, 0, 0, 0, balanceTime, 0]
+                        value = [nickname, 0, 0, 0, 0, balanceTime, 0]
 
                         api.gamedata_api("/BasicData", "POST", value)
-                        api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                        api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                         break
             
@@ -160,9 +167,9 @@ def balanceTest():
         endTimer = time.time()
 
         if endTimer - startTimer >= 3:
-            api.gamedata_api("/ProgramData", "POST", 0)
-
             user_cam.release()
+
+            api.gamedata_api("/ProgramData", "POST", [nickname, 0])
             
             break
         
@@ -172,7 +179,3 @@ def balanceTest():
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    api.gamedata_api("/ProgramData", "DELETE", None)
-
-    user_cam.release()

@@ -4,6 +4,7 @@ import random
 import api
 import playsound as ps
 import pathlib
+import json
 
 # 두 발목의 거리 차이를 계산
 def distanceCalculate(p1, p2):
@@ -14,6 +15,12 @@ def distanceCalculate(p1, p2):
 
 def basicRun():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
+    nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
+
+    with open(nickname_path) as nickname_file:
+        nickname_data = json.load(nickname_file)
+
+    nickname = nickname_data["name"]
 
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
@@ -34,8 +41,9 @@ def basicRun():
         if endTimer - startTimer >= 3 and camDelay is False:
             camDelay = True
             api.gamedata_api("/BackgroundData", "DELETE", None)
-            api.gamedata_api("/ProgramData", "POST", 1)
+            api.gamedata_api("/ProgramData", "POST", [nickname, 1])
         if endTimer - startTimer >= 6:
+            startTimer = time.time()
             break
         ret_val, image = user_cam.read()
         flipFrame = cv2.flip(image, 1)
@@ -43,16 +51,17 @@ def basicRun():
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
+        
     while user_cam.isOpened():
         success, image = user_cam.read()
         
         try:
             image = detector.findPose(image)
             results = detector.findAnkle(image)
-
             # handList_user = detector.findHand(image)
+
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
+
             # api.gamedata_api("/HandData/1", "PUT", value)
 
             if results is not None and len(results) >= 2:
@@ -76,10 +85,10 @@ def basicRun():
                     # else:
                     #     rating = 1
 
-                    value = [y, 0, 0, 0, 0, 0]
+                    value = [nickname, y, 0, 0, 0, 0, 0]
 
                     api.gamedata_api("/BasicData", "POST", value)
-                    api.gamedata_api("/BasicData/1/update_rating", "PUT", value)
+                    api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
                     break
 
@@ -128,9 +137,9 @@ def basicRun():
         endTimer = time.time()
 
         if endTimer - startTimer >= 3:
-            api.gamedata_api("/ProgramData", "POST", 0)
-
             user_cam.release()
+            
+            api.gamedata_api("/ProgramData", "POST", [nickname, 0])
             
             break
         
@@ -140,7 +149,3 @@ def basicRun():
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    api.gamedata_api("/ProgramData", "DELETE", None)
-
-    user_cam.release()
