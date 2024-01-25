@@ -1,11 +1,11 @@
 import cv2, time, json
 import numpy as np
 import mediapipe as mp
-import poseModule as pm
+from provider import poseModule as pm
 from scipy.spatial.distance import cosine
 from fastdtw import fastdtw
 import pathlib
-import api
+from provider import api
 import random
 
 def gameRun():

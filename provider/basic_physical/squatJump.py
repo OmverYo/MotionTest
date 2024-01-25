@@ -1,6 +1,6 @@
 import cv2, time
-import poseModule as pm
-import api
+from provider import poseModule as pm
+from provider import api
 import playsound as ps
 import pathlib
 import json

@@ -2,7 +2,7 @@ import argparse
 import json
 import time
 import pathlib
-import api
+from provider import api
 
 from scipy.spatial.distance import cosine
 from fastdtw import fastdtw

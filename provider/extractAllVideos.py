@@ -1,6 +1,6 @@
 import os
 import cv2
-import poseModule as pm
+from provider import poseModule as pm
 import mediapipe as mp
 import json
 
@@ -13,7 +13,7 @@ cwd = os.getcwd().replace("\\", "/") + "/"
 
 onlyfiles = [f for f in os.listdir(cwd) if os.path.isfile(os.path.join(cwd, f))]
 
-onlyfiles.remove("extractAllVideos.py")
+onlyfiles.remove("provider/extractAllVideos.py")
 onlyfiles.remove("poseModule.py")
 
 for x in onlyfiles:

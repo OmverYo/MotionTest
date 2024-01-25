@@ -1,19 +1,16 @@
 import cv2, time
-import poseModule as pm
-import random
-import api
+from provider import poseModule as pm
+from provider import api
 import playsound as ps
 import pathlib
 import json
 
-# 두 발목의 거리 차이를 계산
 def distanceCalculate(p1, p2):
-    """p1 and p2 in format (x1, y1) and (x2, y2) tuples"""
+    """Calculate Euclidean distance between two points."""
     dis = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
-    
     return dis
 
-def basicRun():
+def air():
     path = str(pathlib.Path(__file__).parent.resolve()).replace("\\", "/") + "/"
     nickname_path = str(pathlib.Path(__file__).parent.parent.resolve()).replace("\\", "/") + "/Content/NicknameSave.json"
 
@@ -25,16 +22,18 @@ def basicRun():
     user_cam = cv2.VideoCapture(0)
     detector = pm.poseDetector()
 
-    randomCounter = random.randint(2, 5)
-
-    counterResult = []
+    # 점프 감지 임계값 설정
+    JUMP_START_THRESHOLD = 10 # 이 값을 낮추면 낮게 점프해도 점프한걸로 간주
+    JUMP_END_THRESHOLD = 10
 
     camDelay = False
-    Start = 0
-    Count = 0
 
     startTimer = time.time()
-    endTimer = time.time()
+    anklePositionSet = False
+    jumpStarted = False
+    jumpStartTimer = 0
+    jumpCount = 0
+    jumpList = []
 
     while True:
         endTimer = time.time()
@@ -51,77 +50,71 @@ def basicRun():
         frame = buffer.tobytes()
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        
+
     while user_cam.isOpened():
         success, image = user_cam.read()
-        
+
         try:
             image = detector.findPose(image)
             results = detector.findAnkle(image)
+            
             # handList_user = detector.findHand(image)
-
             # value = [handList_user[1][1], handList_user[1][2], handList_user[0][1], handList_user[0][2]]
-
             # api.gamedata_api("/HandData/1", "PUT", value)
 
             if results is not None and len(results) >= 2:
                 leftAnkle = [results[0][1], results[0][2]]
                 rightAnkle = [results[1][1], results[1][2]]
 
-                # 총 3번 완료시 종료
-                if Count >= 3:
-                    y = 0
+                # 초기 위치 설정
+                if not anklePositionSet and time.time() - startTimer > 6:
+                    leftankleInitialPosition = leftAnkle[1]
+                    rightankleInitialPosition = rightAnkle[1]
+                    anklePositionSet = True
 
-                    for x in counterResult:
-                        y += x
+                # 점프 감지
+                if anklePositionSet:
+                    currentleftAnkleHeight = leftAnkle[1]
+                    currentrightAnkleHeight = rightAnkle[1]
 
-                    y = round(y / 3, 3)
+                    # 두 발 모두 점프 하였을 경우 시작 감지
+                    if not jumpStarted and currentleftAnkleHeight < leftankleInitialPosition - JUMP_START_THRESHOLD and currentrightAnkleHeight < rightankleInitialPosition - JUMP_START_THRESHOLD:
+                        jumpStarted = True
+                        jumpStartTimer = time.time()
 
-                    # rating = 0
+                    # 한 발이라도 먼저 떨어진 경우 점프 종료 감지
+                    elif jumpStarted and (currentrightAnkleHeight > rightankleInitialPosition - JUMP_END_THRESHOLD or currentrightAnkleHeight > rightankleInitialPosition - JUMP_START_THRESHOLD):
+                        jumpEndTimer = time.time()
+                        airTime = round((jumpEndTimer - jumpStartTimer), 3)
+                        jumpList.append(airTime)
+                        jumpStarted = False
+                        print("Air Time:", airTime, "seconds")  # 체공시간 출력
+                        ps.playsound(path + "static/coin.mp3")
 
-                    # if y >= 0.500:
-                    #     rating = 0
+                        jumpCount += 1
 
-                    # else:
-                    #     rating = 1
+                    # 2번 실행 후 종료
+                    elif jumpCount >= 2:
+                        jumpList.sort()
 
-                    value = [nickname, y, 0, 0, 0, 0, 0]
+                        # rating = 0
 
-                    api.gamedata_api("/BasicData", "POST", value)
-                    api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
+                        # if jumpList[-1] >= 0.5:
+                        #     rating = 1
 
-                    break
+                        # else:
+                        #     rating = 0
+                        
+                        value = [nickname, 0, jumpList[-1], 0, 0, 0, 0]
 
-                if Start and endTimer - startTimer >= randomCounter:
-                    ps.playsound(path + "static/start.mp3")
+                        api.gamedata_api("/BasicData", "POST", value)
+                        api.gamedata_api(f"/BasicData/{nickname}/update_rating", "PUT", value)
 
-                    startTimer = time.time()
+                        break
 
-                # 발목이 다시 좁아지면 시작
-                if distanceCalculate(leftAnkle, rightAnkle) < 50:
-                    Start = 1
-                    endTimer = time.time()
-
-                # 발목 사이 길이가 넓어지면 카운트 1
-                elif Start and distanceCalculate(leftAnkle, rightAnkle) > 60:
-                    endTimer = time.time()
-                    
-                    Count = Count + 1
-                    Start = 0
-
-                    counterResult.append(round((endTimer - startTimer), 3))
-                    print("Time Taken:", round((endTimer - startTimer), 3))
-
-                    randomCounter = random.randint(2, 5)
-
-                    print("Random:", randomCounter)
-                    print("Count:", Count)
-
-                    startTimer = time.time()
-
-                else:
-                    pass
-
+                    else:
+                        pass
+            
         except:
             success, image = user_cam.read()
         
@@ -131,14 +124,12 @@ def basicRun():
         yield (b'--image\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + encodedImage + b'\r\n')
     
-    startTimer = time.time()
-
     while True:
         endTimer = time.time()
 
         if endTimer - startTimer >= 3:
             user_cam.release()
-            
+
             api.gamedata_api("/ProgramData", "POST", [nickname, 0])
             
             break

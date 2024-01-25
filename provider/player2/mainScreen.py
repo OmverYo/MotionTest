@@ -1,6 +1,6 @@
 import cv2
-import poseModule as pm
-import api
+from provider import poseModule as pm
+from provider import api
 
 def mainScreen():
     user_cam = cv2.VideoCapture(0)
