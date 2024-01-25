@@ -108,7 +108,7 @@ def balanceTest():
                     currentleftKneeHipDistance = abs(leftKnee[1] - leftHip[1])
                     # 60초가 지나거나, 무릎을 놓치거나, 어깨가 흔들리거나, 무릎이 흔들릴 경우 종료
                     if currentleftKneeHipDistance > initialleftKneeHipDistance - 3 or differenceCalculate(initialleftshoulderPosition, leftShoulder[0]) or differenceCalculate(initialrightshoulderPosition, rightShoulder[0]) or differenceCalculate(initialleftkneePosition, leftKnee[0]) or endTimer - startTimer >= 60:
-                        ps.playsound(path + "jump.mp3")
+                        ps.playsound(path + "static/jump.mp3")
 
                         balanceTime = round(time.time() - balanceStartTime, 3)
 
@@ -133,7 +133,7 @@ def balanceTest():
                     currentrightKneeHipDistance = abs(rightKnee[1] - rightHip[1])
                     # 60초가 지나거나, 무릎을 놓치거나, 어깨가 흔들리거나, 무릎이 흔들릴 경우 종료
                     if currentrightKneeHipDistance > initialrightKneeHipDistance - 3 or differenceCalculate(initialleftshoulderPosition, leftShoulder[0]) or differenceCalculate(initialrightshoulderPosition, rightShoulder[0]) or differenceCalculate(initialrightkneePosition, rightKnee[0]) or endTimer - startTimer >= 60:
-                        ps.playsound(path + "jump.mp3")
+                        ps.playsound(path + "static/jump.mp3")
 
                         balanceTime = round(time.time() - balanceStartTime, 3)
 

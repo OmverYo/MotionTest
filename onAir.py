@@ -89,7 +89,7 @@ def air():
                         jumpList.append(airTime)
                         jumpStarted = False
                         print("Air Time:", airTime, "seconds")  # 체공시간 출력
-                        ps.playsound(path + "coin.mp3")
+                        ps.playsound(path + "static/coin.mp3")
 
                         jumpCount += 1
 

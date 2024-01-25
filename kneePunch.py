@@ -106,7 +106,7 @@ def kneePunch():
                 # 왼손과 왼어깨의 거리가 가깝고 오른무릎이 45도 이상일때
                 if distanceCalculate(leftShoulder, leftWrist) < 65 and angleCalculate(rightKnee, rightHip):
                     leftStart = 1
-                    ps.playsound(path + "coin.mp3")
+                    ps.playsound(path + "static/coin.mp3")
 
                 # 왼손과 왼어깨의 거리가 멀고 오른쪽 무릎이 45도 미만일때
                 elif leftStart and distanceCalculate(leftShoulder, leftWrist) > 75 and not angleCalculate(rightKnee, rightHip):
@@ -118,7 +118,7 @@ def kneePunch():
                 # 오른손과 오른어깨의 거리가 가깝고 왼무릎이 45도 이상일때
                 if distanceCalculate(rightShoulder, rightWrist) < 65 and angleCalculate(leftKnee, leftHip):
                     rightStart = 1
-                    ps.playsound(path + "coin.mp3")
+                    ps.playsound(path + "static/coin.mp3")
 
                 # 오른손과 오른어깨의 거리가 멀고 왼무릎이 45도 미만일때
                 elif rightStart and distanceCalculate(rightShoulder, rightWrist) > 75 and not angleCalculate(leftKnee, leftHip):

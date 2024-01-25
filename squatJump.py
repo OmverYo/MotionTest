@@ -70,7 +70,7 @@ def squatJump():
                 elif Start and distanceCalculate(leftHip, leftAnkle) > 110:
                     Count = Count + 1
                     Start = 0
-                    ps.playsound(path + "coin.mp3")
+                    ps.playsound(path + "static/coin.mp3")
                     print("Count:", Count)
 
             endTimer = time.time()

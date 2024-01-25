@@ -88,7 +88,7 @@ def gameRun():
             if is_vr:
                 results = selfie_segmentation.process(flipFrame)
                 condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.15
-                bg_image = cv2.imread(f"{path}{bg_name}")
+                bg_image = cv2.imread(f"{path}static/{bg_name}")
                 output_image = np.where(condition, flipFrame, bg_image)
                 ret, buffer = cv2.imencode('.jpg', output_image)
                 output_image = buffer.tobytes()
@@ -187,7 +187,7 @@ def gameRun():
             if is_vr:
                 results = selfie_segmentation.process(flipFrame)
                 condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.15
-                bg_image = cv2.imread(f"{path}{bg_name}")
+                bg_image = cv2.imread(f"{path}static/{bg_name}")
                 output_image = np.where(condition, flipFrame, bg_image)
                 ret, buffer = cv2.imencode('.jpg', output_image)
                 output_image = buffer.tobytes()
